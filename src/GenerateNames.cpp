@@ -3,6 +3,7 @@
 #include <fstream>
 #include <String>
 #include "MarkovModel.h"
+
 using namespace std;
 
 /*
@@ -13,10 +14,15 @@ Convert arrays to vectors
 */
 
 int main(){
-
+	int num;
 	
 	//MarkovModel mm("names/names.csv");
 	MarkovModel mm("names/Names_2010Census.csv");
-
+	
+	num = 10;
+	for(int i = 0; i < num; i++){
+		cout << mm.makeItem() << endl;
+	}
 	return 0;
 }
+

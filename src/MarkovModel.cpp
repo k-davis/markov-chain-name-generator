@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <map>
+#include <time.h>
 
 #include "MarkovModel.h"
 
@@ -13,7 +14,7 @@ MarkovModel::MarkovModel(string filePath){
 	namesPath = filePath;
 	cout << "Constructed" << endl;
 	makeModel();
-	
+	srand(time(NULL));
 }
 
 MarkovModel::~MarkovModel(){
@@ -39,7 +40,7 @@ void MarkovModel::makeModel(){
 	closeFile();
 
 	normalize();
-	printModel();
+	//printModel();
 
 }
 
@@ -53,10 +54,8 @@ void MarkovModel::readData(){
 
 	while(getline(namesFile, line) && line.find("ALL OTHER NAMES") == string::npos){
 		name = line.substr(0, line.find(","));
-		
 		countChars(name);
 	}
-	
 }
 
 void MarkovModel::countChars(string& name){
@@ -115,6 +114,34 @@ void MarkovModel::normalize(){
 
 		for(auto &value : firstMap.second){
 			value.second /= sum;
+		}
+	}
+}
+
+string MarkovModel::makeItem(){
+	string name;
+	char prevChar = '\n';
+	char curChar;
+	double letterChance;
+
+	do {
+		letterChance = ((double)rand())/RAND_MAX;
+		curChar = findCorrelatingLetter(letterChance, prevChar);
+		if(curChar != '\n'){
+			name += curChar;
+		}
+
+		prevChar = curChar;
+	} while (prevChar != '\n');
+	return name;
+}
+
+char MarkovModel::findCorrelatingLetter(double& letterChance, char prevChar){
+	for(auto &value : probabilityModel[prevChar]){
+		letterChance -= value.second;
+		if(letterChance <= 0){
+			prevChar = value.first;
+			return value.first;
 		}
 	}
 }

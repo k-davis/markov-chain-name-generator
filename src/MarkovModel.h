@@ -14,6 +14,8 @@ public:
 
 	//Deconstructor
 	~MarkovModel();
+
+	string makeItem();
 private:
 
 	string namesPath;
@@ -33,6 +35,8 @@ private:
 	string adjustKeyToPrint(char key);
 	void instantiate2DMap();
 	void normalize();
+	char findCorrelatingLetter(double& letterChance, char prevChar);
+
 };
 
 #endif
