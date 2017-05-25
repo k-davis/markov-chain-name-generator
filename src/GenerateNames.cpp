@@ -5,10 +5,18 @@
 #include "MarkovModel.h"
 using namespace std;
 
+/*
+----To-do
+Convert arrays to vectors
+
+...the rest of it
+*/
+
 int main(){
 
-	cout << (1 + '\n') << endl;
-	MarkovModel mm("test");
+	
+	//MarkovModel mm("names/names.csv");
+	MarkovModel mm("names/Names_2010Census.csv");
 
 	return 0;
 }

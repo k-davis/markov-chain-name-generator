@@ -1,4 +1,5 @@
 #include <String>
+#include <map>
 
 #ifndef MARKOVMODEL_H
 #define MARKOVMODEL_H
@@ -17,17 +18,21 @@ private:
 
 	string namesPath;
 	ifstream namesFile;
-	double** modelArray;
-	int** modelCountArray;
-	
+	map <char, map <char, double>> probabilityModel;
+
 	//Opens the file
 	void openFile();
 	//Closes the file
 	void closeFile();
 	//Makes the whole Markov Chain model, the 2D array of probabilities
 	void makeModel();
-	//Takes a character and finds what index in the model array it corresponds with
-	int convertCharToModelIndex(char charToConvert);
+	
+	void readData();
+	void countChars(string& name);
+	void printModel();
+	string adjustKeyToPrint(char key);
+	void instantiate2DMap();
+	void normalize();
 };
 
 #endif
