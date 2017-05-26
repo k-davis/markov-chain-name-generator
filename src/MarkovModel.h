@@ -14,18 +14,22 @@ public:
 
 	//Deconstructor
 	~MarkovModel();
+
+	string makeFirstOrderItem();
+	string makeSecondOrderItem();
 private:
 
 	string namesPath;
 	ifstream namesFile;
-	map <char, map <char, double>> probabilityModel;
+	map <string, map <char, double>> probabilityModel;
 
 	//Opens the file
 	void openFile();
 	//Closes the file
 	void closeFile();
 	//Makes the whole Markov Chain model, the 2D array of probabilities
-	void makeModel();
+	void makeFirstOrderModel();
+	void makeSecondOrderModel();
 	
 	void readData();
 	void countChars(string& name);
@@ -33,6 +37,8 @@ private:
 	string adjustKeyToPrint(char key);
 	void instantiate2DMap();
 	void normalize();
+	char findCorrelatingLetter(double& letterChance, string prevState);
+
 };
 
 #endif
