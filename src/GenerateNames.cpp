@@ -17,11 +17,11 @@ int main(){
 	int num;
 	
 	//MarkovModel mm("names/names.csv");
-	MarkovModel mm("names/Names_2010Census.csv");
+	MarkovModel mm("names/male_first.dat");
 	
 	num = 10;
 	for(int i = 0; i < num; i++){
-		cout << mm.makeItem() << endl;
+		cout << mm.makeSecondOrderItem() << endl;
 	}
 	return 0;
 }
