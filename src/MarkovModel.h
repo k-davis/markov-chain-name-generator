@@ -17,7 +17,7 @@ public:
 	//Deconstructor
 	~MarkovModel();
 
-	string makeItem();
+	int makeItem(string& name);
 private:
 
 	string namesPath;
@@ -38,6 +38,7 @@ private:
 	void countChars(string& name);
 	void normalize();
 	char findCorrelatingLetter(double& letterChance, string prevState);
+	string makeItemHelper();
 
 };
 

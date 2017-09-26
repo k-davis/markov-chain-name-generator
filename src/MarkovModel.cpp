@@ -9,13 +9,17 @@
 #include <cassert>
 #include <set>
 #include <algorithm>
+#include <ctime>
+
 
 #include "MarkovModel.h"
 
 /*
 To Do
 change 'auto' data types to what is actually returned
-swap out vector for something that doesn't need shift
+Remove excess data from name files
+Add option to provide own name data
+Do not let the same name be generated twice
 
 */
 
@@ -38,13 +42,12 @@ void MarkovModel::openFile(){
 
 	if(namesFile.fail()){
        cout << "Could not open file." << endl;
-        exit(1);
+       exit(1);
     }
 }
 
 void MarkovModel::closeFile(){
 	namesFile.close();
-	delete namesFile;
 }
 
 
@@ -55,8 +58,7 @@ void MarkovModel::makeModel(){
 	string line;
 	string name;
 
-	//The order of the model determines how far back the program should look when selecting
-	// the next character
+	//The order of the model determines how far back the program should look when selecting the next character
 	vector <char> prevChars(order);
 
 	while(getline(namesFile, line)){
@@ -81,15 +83,14 @@ void MarkovModel::makeModel(){
 
 	closeFile();
 
-	//The contents of probabilityModel must be changed from a count of
-	//	each possible state to the probability
+	//The contents of probabilityModel must be changed from a count of each possible state to the probability
 	normalize();
 }
 
 //Turns a vector (list) of characters into a string
 string MarkovModel::makeString(vector <char>& myVector){
 	string toReturn = "";
-	for(int index = 0; index < myVector.size(); index++){
+	for(unsigned int index = 0; index < myVector.size(); index++){
 		toReturn += myVector[index];
 	}
 	return toReturn;
@@ -144,15 +145,46 @@ void MarkovModel::normalize(){
 
 
 
-string MarkovModel::makeItem(){
+int MarkovModel::makeItem(string& name){
+	
+	name = makeItemHelper();
+	clock_t startTime;
+	
+	startTime = clock();
+	while(binary_search(setOfNames.begin(), setOfNames.end(), name)){
+		
+		name = makeItemHelper();
+
+		// If a name cannot be generated
+		if( ((clock() - startTime) / (double)CLOCKS_PER_SEC) > 5.0){
+			return -1;
+		}
+
+	} 
+
+	setOfNames.insert(name);
+	transform(name.begin(), name.end(), name.begin(), ::tolower);
+	name[0] = toupper(name[0]);
+
+	return 1;
+}
+
+
+
+string MarkovModel::makeItemHelper(){
 	string name;
 	vector <char> prevChars(order);
 	fill(prevChars.begin(), prevChars.end(), '\n');
 	char curChar;
 	double letterChance;
-
+	
 	do{
+
 		letterChance = ((double)rand())/RAND_MAX;
+		while(letterChance == 1){
+			letterChance = ((double)rand())/RAND_MAX;
+		}
+
 		//cout << letterChance;
 		curChar = findCorrelatingLetter(letterChance, makeString(prevChars));
 		//cout << "\t " << curChar << endl;
@@ -163,16 +195,9 @@ string MarkovModel::makeItem(){
 		shiftVector(prevChars, curChar);
 		
 	} while (prevChars[0] != '\n');
-	
-	if(binary_search(setOfNames.begin(), setOfNames.end(), name)){
-		return makeItem();
-	} else {
-		return name;
-	}
 
+	return name;
 }
-
-
 
 char MarkovModel::findCorrelatingLetter(double& letterChance, string prevState){
 	for(auto &value : probabilityModel[prevState]){
@@ -181,7 +206,7 @@ char MarkovModel::findCorrelatingLetter(double& letterChance, string prevState){
 			return value.first;
 		}
 	}
-	cout << "letterChance: " << letterChance << endl;
+	
 	cout << "Oh crap, we have a problem" << endl;
 	exit(1);
 
