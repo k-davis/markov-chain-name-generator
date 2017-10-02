@@ -144,39 +144,95 @@ void MarkovModel::normalize(){
 
 
 
-
-int MarkovModel::makeItem(string& name){
+/*
+bool MarkovModel::makeItem(string& nameOutput){
 	
-	name = makeItemHelper();
+	nameOutput = makeItemHelper();
 	clock_t startTime;
 	
 	startTime = clock();
-	while(binary_search(setOfNames.begin(), setOfNames.end(), name)){
+	while(binary_search(setOfNames.begin(), setOfNames.end(), nameOutput)){
 		
-		name = makeItemHelper();
+		nameOutput = makeItemHelper();
 
 		// If a name cannot be generated
 		if( ((clock() - startTime) / (double)CLOCKS_PER_SEC) > 5.0){
-			return -1;
+			return false;
 		}
 
 	} 
 
-	setOfNames.insert(name);
-	transform(name.begin(), name.end(), name.begin(), ::tolower);
-	name[0] = toupper(name[0]);
+	setOfNames.insert(nameOutput);
+	//The capitalization is made propper
+	transform(nameOutput.begin(), nameOutput.end(), nameOutput.begin(), ::tolower);
+	nameOutput[0] = toupper(nameOutput[0]);
 
-	return 1;
+	return true;
+}
+/*/
+bool MarkovModel::makeItem(string& nameOutput){
+	string name = "";
+	vector<char> prevChars(order);
+	fill(prevChars.begin(), prevChars.end(), '\n');
+
+	return makeItemTimer(nameOutput, name, prevChars);
+}
+
+bool MarkovModel::makeItemFromString(string& nameOutput, string nameInput){
+	string name = nameInput;
+	vector<char> prevChars(order);
+	int numToMove;
+
+	fill(prevChars.begin(), prevChars.end(), '\n');
+	if(order < name.size()){
+		numToMove = order;
+	} else {
+		numToMove = name.size();
+	}
+
+	transform(name.begin(), name.end(), name.begin(), ::toupper);
+	for(int index = 0; index < numToMove; index++){
+		prevChars[order - numToMove + index] = name[name.size() - index - 1];
+	}
+
+	return makeItemTimer(nameOutput, name, prevChars);
+}
+
+bool MarkovModel::makeItemTimer(string& nameOutput, string nameInput, vector<char> prevChars){
+
+	nameOutput = makeItemHelper(nameInput, prevChars);
+	clock_t startTime;
+	
+	startTime = clock();
+	while(binary_search(setOfNames.begin(), setOfNames.end(), nameOutput)){
+		
+		nameOutput = makeItemHelper(nameInput, prevChars);
+
+		// If a name cannot be generated
+		if( ((clock() - startTime) / (double)CLOCKS_PER_SEC) > 5.0){
+			return false;
+		}
+
+	} 
+
+	setOfNames.insert(nameOutput);
+	//The capitalization is made propper
+	transform(nameOutput.begin(), nameOutput.end(), nameOutput.begin(), ::tolower);
+	nameOutput[0] = toupper(nameOutput[0]);
+
+	return true;
 }
 
 
 
-string MarkovModel::makeItemHelper(){
-	string name;
-	vector <char> prevChars(order);
-	fill(prevChars.begin(), prevChars.end(), '\n');
+string MarkovModel::makeItemHelper(string name, vector<char> prevChars){
+	//string name;
+	//vector <char> prevChars(order);
+	//fill(prevChars.begin(), prevChars.end(), '\n');
 	char curChar;
 	double letterChance;
+	
+	
 	
 	do{
 
@@ -185,19 +241,24 @@ string MarkovModel::makeItemHelper(){
 			letterChance = ((double)rand())/RAND_MAX;
 		}
 
-		//cout << letterChance;
 		curChar = findCorrelatingLetter(letterChance, makeString(prevChars));
-		//cout << "\t " << curChar << endl;
+		
+		//A name simply shouldn't include a newline character. Newlines characters aren't letters
 		if(curChar != '\n'){
 			name += curChar;
 		}
 
+		// The new character is added to the *beginning* (index 0) of the vector
 		shiftVector(prevChars, curChar);
-		
+	
+	//So, when the most recent character selected is '\n', the name is done being made
 	} while (prevChars[0] != '\n');
 
 	return name;
 }
+
+
+
 
 char MarkovModel::findCorrelatingLetter(double& letterChance, string prevState){
 	for(auto &value : probabilityModel[prevState]){
@@ -207,6 +268,8 @@ char MarkovModel::findCorrelatingLetter(double& letterChance, string prevState){
 		}
 	}
 	
+	cout << "letterChance: " << letterChance << endl;
+	cout << "prevState:    " << prevState << endl;
 	cout << "Oh crap, we have a problem" << endl;
 	exit(1);
 
