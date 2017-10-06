@@ -10,7 +10,7 @@
 using namespace std;
  
 void printMenu();
-int getOrderInput();
+int getMakeModelOrder();
 void createModelOption(map<int, MarkovModel*>& modelList);
 void createFromModelOption(map<int, MarkovModel*>& modelList);
 void createFromStartingStringOption(map<int, MarkovModel*>& modelList);
@@ -18,6 +18,9 @@ string getStartingString();
 int getModelOrderToMakeFrom(map<int, MarkovModel*>& modelList);
 int getNumNamesToMake();
 void outputNames(int numNames, int orderInput, map<int, MarkovModel*>& modelList);
+void outputNamesFromString(int numNames, int orderInput, string starting, map<int, MarkovModel*>& modelList);
+void clearBuffer();
+void pause();
 
 
 int main(){
@@ -62,8 +65,9 @@ void printMenu(){
 	cout << "> ";
 }
 
+// orderInput must NOT correspond with an existing model
 void createModelOption(map<int, MarkovModel*>& modelList){
-	int orderInput = getOrderInput();
+	int orderInput = getMakeModelOrder();
 
 	if(modelList.find(orderInput) == modelList.end()){
 		modelList.insert(pair<int, MarkovModel*>(orderInput, new MarkovModel("names/male_first.dat", orderInput)));
@@ -74,71 +78,69 @@ void createModelOption(map<int, MarkovModel*>& modelList){
 	}
 }
 
+
 void createFromModelOption(map<int, MarkovModel*>& modelList){
 	if(modelList.empty()){
-		cout << "No models yet exist." << endl;
-
+		cout << "No models exist to make names from." << endl;
 	} else {
-		int input;
+		int order = getModelOrderToMakeFrom(modelList);
+		int numNames = getNumNamesToMake();
 
-		cout << "Enter model order to make names from > ";
-
-		if(cin >> input){
-			if(modelList.find(input) == modelList.end()){
-				cout << "No model exists with an order of " << input << "." << endl << endl;
-				createFromModelOption(modelList);
-			} else {
-				int numNames = getNumNamesToMake();
-				outputNames(numNames, input, modelList);
-			}
-
-		} else {
-			cout << "Input must be an integer." << endl << endl;
-			cin.clear();
-			cin.ignore();
-			createFromModelOption(modelList);
-		}
+		outputNames(numNames, order, modelList);
 	}
 }
 
 void createFromStartingStringOption(map<int, MarkovModel*>& modelList){
-	int order = getModelOrderToMakeFrom(modelList);
-	string nameInput = getStartingString();
-	string nameOutput;
-	bool success = modelList[order]->makeItemFromString(nameOutput, nameInput);
-	cout << nameOutput << endl;
+	if(modelList.empty()){
+		cout << "No models exist to make names from." << endl;
+	} else {
+		int order = getModelOrderToMakeFrom(modelList);
+		string nameInput = getStartingString();
+		int numNames = getNumNamesToMake();
 
+		outputNamesFromString(numNames, order, nameInput, modelList);
+	}
 }
 
 string getStartingString(){
 	string input;
-	cout << "Enter the beginning of the name > ";
-	getchar();
-	getline(cin, input);
-	for(char c : input){
-		if(!('A' <= c && c <= 'z')){
-			cout << "Name beginning must only contain letters." << endl;
-			return getStartingString();
+
+	while(true){
+		clearBuffer();
+
+		cout << "Enter the beginning of the name > ";
+		getline(cin, input);
+		bool goodName = true;
+
+		for(char c : input){
+			if(!('A' <= c && c <= 'z')){
+				cout << "Name beginning must only contain letters." << endl;
+				goodName = false;
+			}
+		}
+
+		if(goodName){
+			return input;
 		}
 	}
-	return input;
 }
 
-//This sentinel might as well always be true. Fix					!!!!!!!!
+
 int getModelOrderToMakeFrom(map<int, MarkovModel*>& modelList){
 	int input;
-	bool sentinel = true;
-
-	while(sentinel){
+	
+	while(true){
+		clearBuffer();
 		cout << "Enter model order to make names from > ";
 
-		if(cin >> input){
-			//cout << "No model exists with an order of " << input << "." << endl << endl;
-			sentinel = false;
-			return input;
+		if(!(cin >> input)){
+			cout << "Input must be an integer." << endl;
+		} else if(modelList.find(input) == modelList.end()){
+			cout << "No model exists with an order of " << input << "." << endl << endl;
+
 		} else {
-			cout << "Input must be an integer." << endl << endl;
-		}
+			return input;
+		} 
 	}
 }
 
@@ -164,6 +166,7 @@ void outputNames(int numNames, int orderInput, map<int, MarkovModel*>& modelList
 	cout << endl;
 	while(numNames > 0){
 		string newName;
+		
 		bool retValue = modelList[orderInput]->makeItem(newName);
 		if(retValue){
 			cout << newName << endl;
@@ -171,34 +174,63 @@ void outputNames(int numNames, int orderInput, map<int, MarkovModel*>& modelList
 			
 		} else {
 			cout << "Names can not be generated using a model of this order." << endl;
-			numNames = -1;
 		}
 	}
 }
 
-int getOrderInput(){
-	int input;
-	
-	cout << "Enter model order > ";
-	if(cin >> input){
-		if(input < 1){
-			cout << "Input for model order must be greater than 1." << endl;
-		} else if(input >= 6){
-
-			cout << "Model orders greater than 5 may result in unexpected or faulty behavior." << endl;
-			cout << "Press enter to continue";
-			char enter;
-			cin.get(enter);
-			cin.get(enter);
-			cout << endl;
+void outputNamesFromString(int numNames, int orderInput, string starting, map<int, MarkovModel*>& modelList){
+	cout << endl;
+	while(numNames > 0){
+		string newName;
+		
+		bool retValue = modelList[orderInput]->makeItemFromString(newName, starting);
+		if(retValue){
+			cout << newName << endl;
+			numNames--;
+			
+		} else {
+			cout << "Names can not be generated using a model of this order." << endl;
 		}
+	}
+}
 
-	} else {
-		cout << "Input for model order must be an integer." << endl << endl;
-		cin.clear();
-		cin.ignore();
-		input = getOrderInput();
+int getMakeModelOrder(){
+	
+	while(true){
+		int input;
+		clearBuffer();
+		cout << "Enter model order > ";
+		cin >> input;
+		if(!cin.fail()){
+			if(input < 1){
+				cout << "Input for model order must be greater than 1." << endl;
+
+			} else if(input >= 6){
+
+				cout << "Model orders greater than 5 may result in unexpected or faulty behavior." << endl;
+				pause();
+			}
+
+			return input;
+
+		} else {
+			cout << "gMMO Input for model order must be an integer." << endl << endl;
+	
+		}
 	}
 
-	return input;	
+	
+}
+
+
+void clearBuffer(){
+	cin.clear();
+	cin.ignore(1000, '\n');
+}
+
+void pause(){
+	cout << "Press enter to continue.";
+	string junk;
+	cin >> junk;
+	cout << endl;
 }

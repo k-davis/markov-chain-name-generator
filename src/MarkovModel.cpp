@@ -233,7 +233,6 @@ string MarkovModel::makeItemHelper(string name, vector<char> prevChars){
 	double letterChance;
 	
 	
-	
 	do{
 
 		letterChance = ((double)rand())/RAND_MAX;
