@@ -1,7 +1,8 @@
 
 #include <iostream>
 #include <fstream>
-#include <String>
+#include <string>
+#include <sstream>
 #include <map>
 #include <cstdlib>
 
@@ -19,21 +20,23 @@ int getModelOrderToMakeFrom(map<int, MarkovModel*>& modelList);
 int getNumNamesToMake();
 void outputNames(int numNames, int orderInput, map<int, MarkovModel*>& modelList);
 void outputNamesFromString(int numNames, int orderInput, string starting, map<int, MarkovModel*>& modelList);
-void clearBuffer();
+bool strToInt(string inputStr, int& outputInt);
 void pause();
 
 
 int main(){
 	map<int, MarkovModel*> modelList;
 	
-
+	
 	
 	string input = "";
+
 	while(input != "Q"){
 
 		printMenu();
 		
-		cin >> input;
+		getline(cin, input);
+		
 		input[0] = toupper(input[0]);
 
 		if(input == "A"){
@@ -48,10 +51,12 @@ int main(){
 		} else if(input != "Q"){
 			cout << "Please provide a valid input." << endl;
 		}
+
+
+		
+	
 	}
 
-	
-	
 	
 	return 0;
 }
@@ -65,7 +70,7 @@ void printMenu(){
 	cout << "> ";
 }
 
-// orderInput must NOT correspond with an existing model
+
 void createModelOption(map<int, MarkovModel*>& modelList){
 	int orderInput = getMakeModelOrder();
 
@@ -76,6 +81,7 @@ void createModelOption(map<int, MarkovModel*>& modelList){
 	} else {
 		cout << "Model of order " << orderInput << " already exists." << endl;
 	}
+	
 }
 
 
@@ -106,7 +112,7 @@ string getStartingString(){
 	string input;
 
 	while(true){
-		clearBuffer();
+		
 
 		cout << "Enter the beginning of the name > ";
 		getline(cin, input);
@@ -127,37 +133,46 @@ string getStartingString(){
 
 
 int getModelOrderToMakeFrom(map<int, MarkovModel*>& modelList){
-	int input;
+	string inputStr;
+	int inputInt;
+	bool okInput;
 	
 	while(true){
-		clearBuffer();
+		
 		cout << "Enter model order to make names from > ";
+		getline(cin, inputStr);
+		okInput = strToInt(inputStr, inputInt);
 
-		if(!(cin >> input)){
+		if(!okInput){
 			cout << "Input must be an integer." << endl;
-		} else if(modelList.find(input) == modelList.end()){
-			cout << "No model exists with an order of " << input << "." << endl << endl;
+		} else if(modelList.find(inputInt) == modelList.end()){
+			cout << "No model exists with an order of " << inputInt << "." << endl << endl;
 
 		} else {
-			return input;
+			return inputInt;
 		} 
 	}
 }
 
 int getNumNamesToMake(){
-	int input;
+	string inputStr;
+	int inputInt;
+	bool okInput;
+
 	cout << "Enter number of names to generate > ";
-	if(cin >> input){
-		if(input < 1){
+	getline(cin, inputStr);
+	okInput = strToInt(inputStr, inputInt);
+
+	if(okInput){
+		if(inputInt < 1){
 			cout << "Number must be greater than one." << endl << endl;
 			return getNumNamesToMake();
 		} else {
-			return input;
+			return inputInt;
 		}
 	} else {
 		cout << "Number of names must be an integer." << endl << endl;
-		cin.clear();
-		cin.ignore();
+		
 		return getNumNamesToMake();
 	}
 }
@@ -174,6 +189,7 @@ void outputNames(int numNames, int orderInput, map<int, MarkovModel*>& modelList
 			
 		} else {
 			cout << "Names can not be generated using a model of this order." << endl;
+			numNames = -1;
 		}
 	}
 }
@@ -190,6 +206,7 @@ void outputNamesFromString(int numNames, int orderInput, string starting, map<in
 			
 		} else {
 			cout << "Names can not be generated using a model of this order." << endl;
+			numNames = -1;
 		}
 	}
 }
@@ -197,40 +214,56 @@ void outputNamesFromString(int numNames, int orderInput, string starting, map<in
 int getMakeModelOrder(){
 	
 	while(true){
-		int input;
-		clearBuffer();
+		string inputStr;
+		int inputInt;
+		bool okInput;
+
+		
+
 		cout << "Enter model order > ";
-		cin >> input;
-		if(!cin.fail()){
-			if(input < 1){
+
+		getline(cin, inputStr);
+		okInput = strToInt(inputStr, inputInt);
+
+		if(okInput){
+			if(inputInt < 1 ){
 				cout << "Input for model order must be greater than 1." << endl;
+			} else if(inputInt > 20){
+				cout << "A model order that high just isn't going to work. It's to have a working order over about 8." << endl;
+			
+			} else {
+				if(inputInt >= 6){
 
-			} else if(input >= 6){
-
-				cout << "Model orders greater than 5 may result in unexpected or faulty behavior." << endl;
-				pause();
+					cout << "Model orders greater than 5 may result in unexpected or faulty behavior." << endl;
+					pause();
+				}
+				
+				return inputInt;
 			}
 
-			return input;
+			
 
 		} else {
 			cout << "gMMO Input for model order must be an integer." << endl << endl;
-	
+			
 		}
 	}
-
-	
 }
 
 
-void clearBuffer(){
-	cin.clear();
-	cin.ignore(1000, '\n');
+bool strToInt(string inputStr, int& outputInt){
+	const char* charString = inputStr.c_str();
+	outputInt = atoi(charString);
+	if(outputInt == 0 && inputStr[0] != '0'){
+		return false;
+	} else {
+		return true;
+	}
 }
+
 
 void pause(){
 	cout << "Press enter to continue.";
-	string junk;
-	cin >> junk;
+	cin.ignore();
 	cout << endl;
 }

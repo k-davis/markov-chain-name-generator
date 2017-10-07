@@ -181,7 +181,21 @@ bool MarkovModel::makeItem(string& nameOutput){
 bool MarkovModel::makeItemFromString(string& nameOutput, string nameInput){
 	string name = nameInput;
 	vector<char> prevChars(order);
-	int numToMove;
+
+	transform(name.begin(), name.end(), name.begin(), ::toupper);
+	fill(prevChars.begin(), prevChars.end(), '\n');
+
+	if(name.size() > order){
+		for(int i = 0; i <= order; i++){
+			prevChars[i] = name[name.size()-1 - i];
+		}
+	} else {
+		for(int i = 0; i < name.size(); i++){
+			prevChars[i] = name[name.size() - 1 - i];
+		}
+	}
+
+	/*int numToMove;
 
 	fill(prevChars.begin(), prevChars.end(), '\n');
 	if(order < name.size()){
@@ -193,7 +207,7 @@ bool MarkovModel::makeItemFromString(string& nameOutput, string nameInput){
 	transform(name.begin(), name.end(), name.begin(), ::toupper);
 	for(int index = 0; index < numToMove; index++){
 		prevChars[order - numToMove + index] = name[name.size() - index - 1];
-	}
+	}*/
 
 	return makeItemTimer(nameOutput, name, prevChars);
 }
@@ -263,12 +277,13 @@ char MarkovModel::findCorrelatingLetter(double& letterChance, string prevState){
 	for(auto &value : probabilityModel[prevState]){
 		letterChance -= value.second;
 		if(letterChance <= 0){
+			//cout << "good prevState: -" << prevState << "-" << endl;
 			return value.first;
 		}
 	}
 	
 	cout << "letterChance: " << letterChance << endl;
-	cout << "prevState:    " << prevState << endl;
+	cout << "prevState:    -" << prevState << "-" << endl;
 	cout << "Oh crap, we have a problem" << endl;
 	exit(1);
 
