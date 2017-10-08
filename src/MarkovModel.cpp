@@ -1,12 +1,9 @@
 #include <String>
-#include <sstream>
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
 #include <map>
 #include <vector>
-#include <time.h>
-#include <cassert>
 #include <set>
 #include <algorithm>
 #include <ctime>
@@ -159,9 +156,14 @@ bool MarkovModel::makeItemFromString(string& nameOutput, string nameInput){
 		}
 	}
 
+	if(probabilityModel.find(makeString(prevChars)) == probabilityModel.end()) {
+		return false;
+	}
 
 	return makeItemTimer(nameOutput, name, prevChars);
 }
+
+
 
 bool MarkovModel::makeItemTimer(string& nameOutput, string nameInput, vector<char> prevChars){
 
@@ -229,9 +231,7 @@ char MarkovModel::findCorrelatingLetter(double& letterChance, string prevState){
 		}
 	}
 	
-	cout << "letterChance: " << letterChance << endl;
-	cout << "prevState:    -" << prevState << "-" << endl;
-	cout << "Oh crap, we have a problem" << endl;
+	cout << "Fatal Error: new character could not be calculated." << endl;
 	exit(1);
 
 }

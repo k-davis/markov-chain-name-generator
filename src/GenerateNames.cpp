@@ -2,7 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <sstream>
 #include <map>
 #include <cstdlib>
 
@@ -13,8 +12,7 @@ using namespace std;
 void printMenu();
 int getMakeModelOrder();
 void createModelOption(map<int, MarkovModel*>& modelList);
-void createFromModelOption(map<int, MarkovModel*>& modelList);
-void createFromStartingStringOption(map<int, MarkovModel*>& modelList);
+void createFromStartingStringOption(map<int, MarkovModel*>& modelList, bool isFromString = false);
 string getStartingString();
 int getModelOrderToMakeFrom(map<int, MarkovModel*>& modelList);
 int getNumNamesToMake();
@@ -43,10 +41,10 @@ int main(){
 			createModelOption(modelList);
 
 		} else if(input == "B"){
-			createFromModelOption(modelList);
+			createFromStartingStringOption(modelList);
 
 		} else if(input == "C"){
-			createFromStartingStringOption(modelList);
+			createFromStartingStringOption(modelList, true);
 
 		} else if(input != "Q"){
 			cout << "Please provide a valid input." << endl;
@@ -85,24 +83,20 @@ void createModelOption(map<int, MarkovModel*>& modelList){
 }
 
 
-void createFromModelOption(map<int, MarkovModel*>& modelList){
+
+void createFromStartingStringOption(map<int, MarkovModel*>& modelList, bool isFromString){
 	if(modelList.empty()){
 		cout << "No models exist to make names from." << endl;
 	} else {
 		int order = getModelOrderToMakeFrom(modelList);
 		int numNames = getNumNamesToMake();
 
-		outputNames(numNames, order, modelList);
-	}
-}
-
-void createFromStartingStringOption(map<int, MarkovModel*>& modelList){
-	if(modelList.empty()){
-		cout << "No models exist to make names from." << endl;
-	} else {
-		int order = getModelOrderToMakeFrom(modelList);
-		string nameInput = getStartingString();
-		int numNames = getNumNamesToMake();
+		string nameInput;
+		if(isFromString){
+			nameInput = getStartingString();
+		} else {
+			nameInput = "";
+		}
 
 		outputNamesFromString(numNames, order, nameInput, modelList);
 	}
@@ -177,22 +171,7 @@ int getNumNamesToMake(){
 	}
 }
 
-void outputNames(int numNames, int orderInput, map<int, MarkovModel*>& modelList){
-	cout << endl;
-	while(numNames > 0){
-		string newName;
-		
-		bool retValue = modelList[orderInput]->makeItem(newName);
-		if(retValue){
-			cout << newName << endl;
-			numNames--;
-			
-		} else {
-			cout << "Names can not be generated using a model of this order." << endl;
-			numNames = -1;
-		}
-	}
-}
+
 
 void outputNamesFromString(int numNames, int orderInput, string starting, map<int, MarkovModel*>& modelList){
 	cout << endl;
@@ -205,7 +184,7 @@ void outputNamesFromString(int numNames, int orderInput, string starting, map<in
 			numNames--;
 			
 		} else {
-			cout << "Names can not be generated using a model of this order." << endl;
+			cout << "Names can not be generated using a model of this order or with current input." << endl;
 			numNames = -1;
 		}
 	}

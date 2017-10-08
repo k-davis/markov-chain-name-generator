@@ -14,11 +14,12 @@ public:
 	//namesPath - the location of the file from which the model will be made
 	MarkovModel(string filePath, int modelOrder);
 
-	//Deconstructor
+	
 	~MarkovModel();
 
 	bool makeItem(string& nameOutput);
 	bool makeItemFromString(string& nameOutput, string nameInput);
+
 
 
 private:
@@ -43,6 +44,7 @@ private:
 	char findCorrelatingLetter(double& letterChance, string prevState);
 	string makeItemHelper(string name, vector<char> prevChars);
 	bool makeItemTimer(string& nameOutput, string nameInput, vector<char> prevChars);
+
 
 };
 
