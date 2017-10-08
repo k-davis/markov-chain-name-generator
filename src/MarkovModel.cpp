@@ -14,28 +14,19 @@
 
 #include "MarkovModel.h"
 
-/*
-To Do
-change 'auto' data types to what is actually returned
-Remove excess data from name files
-Add option to provide own name data
-Do not let the same name be generated twice
 
-*/
 
 MarkovModel::MarkovModel(string filePath, int modelOrder){
 	namesPath = filePath;
 	order = modelOrder;
 	makeModel();
 
-	//Comment out for debugging
+	
 	srand(time(NULL));
 	rand();
 }
 
-MarkovModel::~MarkovModel(){
 
-}
 
 void MarkovModel::openFile(){
 	namesFile.open(namesPath);
@@ -143,33 +134,6 @@ void MarkovModel::normalize(){
 }
 
 
-
-/*
-bool MarkovModel::makeItem(string& nameOutput){
-	
-	nameOutput = makeItemHelper();
-	clock_t startTime;
-	
-	startTime = clock();
-	while(binary_search(setOfNames.begin(), setOfNames.end(), nameOutput)){
-		
-		nameOutput = makeItemHelper();
-
-		// If a name cannot be generated
-		if( ((clock() - startTime) / (double)CLOCKS_PER_SEC) > 5.0){
-			return false;
-		}
-
-	} 
-
-	setOfNames.insert(nameOutput);
-	//The capitalization is made propper
-	transform(nameOutput.begin(), nameOutput.end(), nameOutput.begin(), ::tolower);
-	nameOutput[0] = toupper(nameOutput[0]);
-
-	return true;
-}
-/*/
 bool MarkovModel::makeItem(string& nameOutput){
 	string name = "";
 	vector<char> prevChars(order);
@@ -195,19 +159,6 @@ bool MarkovModel::makeItemFromString(string& nameOutput, string nameInput){
 		}
 	}
 
-	/*int numToMove;
-
-	fill(prevChars.begin(), prevChars.end(), '\n');
-	if(order < name.size()){
-		numToMove = order;
-	} else {
-		numToMove = name.size();
-	}
-
-	transform(name.begin(), name.end(), name.begin(), ::toupper);
-	for(int index = 0; index < numToMove; index++){
-		prevChars[order - numToMove + index] = name[name.size() - index - 1];
-	}*/
 
 	return makeItemTimer(nameOutput, name, prevChars);
 }
@@ -240,9 +191,6 @@ bool MarkovModel::makeItemTimer(string& nameOutput, string nameInput, vector<cha
 
 
 string MarkovModel::makeItemHelper(string name, vector<char> prevChars){
-	//string name;
-	//vector <char> prevChars(order);
-	//fill(prevChars.begin(), prevChars.end(), '\n');
 	char curChar;
 	double letterChance;
 	
@@ -277,7 +225,6 @@ char MarkovModel::findCorrelatingLetter(double& letterChance, string prevState){
 	for(auto &value : probabilityModel[prevState]){
 		letterChance -= value.second;
 		if(letterChance <= 0){
-			//cout << "good prevState: -" << prevState << "-" << endl;
 			return value.first;
 		}
 	}
