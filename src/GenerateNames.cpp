@@ -246,3 +246,9 @@ void pause(){
 	cin.ignore();
 	cout << endl;
 }
+
+void deleteMapList(map<int, MarkovModel*>& modelList){
+	for(auto const& element: modelList){
+		delete element.second;
+	}
+}

@@ -23,7 +23,9 @@ MarkovModel::MarkovModel(string filePath, int modelOrder){
 	rand();
 }
 
-
+MarkovModel::~MarkovModel(){
+	
+}
 
 void MarkovModel::openFile(){
 	namesFile.open(namesPath);
