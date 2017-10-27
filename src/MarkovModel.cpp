@@ -51,7 +51,8 @@ void MarkovModel::makeModel(){
 	vector <char> prevChars(order);
 
 	while(getline(namesFile, name)){
-
+		
+		transform(name.begin(), name.end(), name.begin(), ::toupper);
 		setOfNames.insert(name);
 
 		//Since the first character in a name is preceded by 'nothing', newline's take their place
