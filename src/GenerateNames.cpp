@@ -55,7 +55,8 @@ int main(){
 	
 	}
 
-	
+	cout << "Goodbye" << endl;
+
 	return 0;
 }
 
@@ -73,7 +74,7 @@ void createModelOption(map<int, MarkovModel*>& modelList){
 	int orderInput = getMakeModelOrder();
 
 	if(modelList.find(orderInput) == modelList.end()){
-		modelList.insert(pair<int, MarkovModel*>(orderInput, new MarkovModel("names/male_first.dat", orderInput)));
+		modelList.insert(pair<int, MarkovModel*>(orderInput, new MarkovModel("names.dat", orderInput)));
 		cout << "Model of order " << orderInput << " created." << endl;
 
 	} else {
@@ -245,4 +246,10 @@ void pause(){
 	cout << "Press enter to continue.";
 	cin.ignore();
 	cout << endl;
+}
+
+void deleteMapList(map<int, MarkovModel*>& modelList){
+	for(auto const& element: modelList){
+		delete element.second;
+	}
 }

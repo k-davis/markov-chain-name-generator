@@ -30,9 +30,8 @@ private:
 	map <string, map <char, double>> probabilityModel;
 	set<string> setOfNames;
 
-	//Opens the file
+	
 	void openFile();
-	//Closes the file
 	void closeFile();
 
 	void makeModel();

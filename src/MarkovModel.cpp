@@ -23,7 +23,9 @@ MarkovModel::MarkovModel(string filePath, int modelOrder){
 	rand();
 }
 
-
+MarkovModel::~MarkovModel(){
+	
+}
 
 void MarkovModel::openFile(){
 	namesFile.open(namesPath);
@@ -43,15 +45,13 @@ void MarkovModel::closeFile(){
 void MarkovModel::makeModel(){
 	openFile();
 
-	string line;
 	string name;
 
 	//The order of the model determines how far back the program should look when selecting the next character
 	vector <char> prevChars(order);
 
-	while(getline(namesFile, line)){
-		//Take the name from each line of the file into variable 'name'
-		name = line.substr(0, line.find(" "));
+	while(getline(namesFile, name)){
+
 		setOfNames.insert(name);
 
 		//Since the first character in a name is preceded by 'nothing', newline's take their place
@@ -117,9 +117,8 @@ void MarkovModel::countChars(string& name){
 //Takes the model and changes the scale of the numbers to be between 0 and 1
 //The model starts having the quantities of character occurences and ends with percentage of the occurence
 void MarkovModel::normalize(){
-	int sum;
 	for(auto &firstMap : probabilityModel){
-		sum = 0;
+		int sum = 0;
 		for(auto &value : firstMap.second){
 			sum += value.second;
 		}
