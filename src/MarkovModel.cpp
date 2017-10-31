@@ -1,4 +1,4 @@
-#include <String>
+#include <string>
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -49,9 +49,7 @@ void MarkovModel::makeModel(){
 
 	//The order of the model determines how far back the program should look when selecting the next character
 	vector <char> prevChars(order);
-
 	while(getline(namesFile, name)){
-		
 		transform(name.begin(), name.end(), name.begin(), ::toupper);
 		setOfNames.insert(name);
 
@@ -59,12 +57,14 @@ void MarkovModel::makeModel(){
 		fill(prevChars.begin(), prevChars.end(), '\n');
 
 		for(char& curChar : name){
+
 			//The markov model holds every preceding state and the count of the next possible states
 			probabilityModel[makeString(prevChars)][curChar]++;
 
 			//We then change what the preceding state consists of
 			shiftVector(prevChars, curChar);
 		}
+
 
 		//A next possible state of a newline indicate the end of a name
 		probabilityModel[makeString(prevChars)]['\n']++;
@@ -87,7 +87,8 @@ string MarkovModel::makeString(vector <char>& myVector){
 
 
 void MarkovModel::shiftVector(vector <char>& myVector, char newChar){
-	for(int index = myVector.size(); index >= 1; index--){
+	int vectorIndex = myVector.size() - 1;
+	for(int index = vectorIndex; index >= 1; index--){
 		myVector[index] = myVector[index - 1];
 	}
 	myVector[0] = newChar;
