@@ -49,10 +49,11 @@ int main(){
 		} else if(input != "Q"){
 			cout << "Please provide a valid input." << endl;
 		}
-
-
-		
 	
+	}
+
+	for(map<int, MarkovModel*>::iterator it = modelList.begin(); it != modelList.end(); ++it){
+		delete it->second;
 	}
 
 	cout << "Goodbye" << endl;
