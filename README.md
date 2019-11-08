@@ -1,3 +1,5 @@
+*Please note that while I am proud of this project, it is no longer representative of my coding style due to its age.*
+
 # Markov Chain Name Generator
 Creates names following patterns found in already existing names with Markov Chains
 
